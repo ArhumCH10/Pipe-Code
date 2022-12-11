@@ -1,0 +1,45 @@
+#include<stdio.h>
+#include<unistd.h>
+#include<wait.h>
+#include<sys/types.h>
+#include<stdlib.h>
+
+int main()
+{
+
+   int fd[2];
+   int fd1[2];
+   pipe(fd);
+   pipe(fd1);
+
+   pid_t pid;
+   pid = fork();
+   if (pid == 0)
+   {
+      char array1[20];
+      close(fd[1]);
+      int n = read(fd[0],array1,20);
+      printf("child receive is %s\n", array1);
+      int size=0;
+      for (int i=0;i<n;i++)
+      {
+         size++;
+      }
+      close(fd1[0]);
+      write(fd1[1],&size,sizeof(size));
+      printf("child sending to parent%d\n", size);
+
+}
+else {
+     char array[20]={"dream to be unique"};
+     close(fd[0]);
+     write(fd[1],array,20);
+    printf("parent sending to child\n");
+    wait(NULL);
+     int count = 0;
+      close(fd1[1]);
+     read(fd1[0],&count,sizeof(count));
+     printf("parent recieves is: %d\n",count);
+
+}
+}
